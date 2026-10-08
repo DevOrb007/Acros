@@ -1,12 +1,10 @@
-export type Coordinates = [
-  longitude: number,
-  latitude: number,
-]
+export type Coordinates = [longitude: number, latitude: number]
 
 export interface Hotspot {
   id: string
   name: string
   coordinates: Coordinates
+  zoom: number
 
   description: string
   poeticLine: string
@@ -15,6 +13,9 @@ export interface Hotspot {
   animalSpeciesCount: number | null
   ecosystemCount: number | null
   experienceCount: number | null
+
+  source: string
+  sourceUrl: string
 }
 
 export interface Species {
@@ -28,11 +29,14 @@ export interface Species {
   poeticLine: string
 
   status: string
+  metricLabel?: string
+  metricValue?: string
   habitat: string
   description: string
 
   facts: string[]
-  ecosystemIds?: string[]
+  source: string
+  sourceUrl: string
 }
 
 export interface Ecosystem {
@@ -45,29 +49,33 @@ export interface Ecosystem {
 
   description: string
   area: string
-  species: string
+  bestTime: string
+  facts: string[]
 
-  bestTime?: string
-  notablePlaces: string[]
+  source: string
+  sourceUrl: string
+  coordinates?: Coordinates
 }
 
 export interface Experience {
   id: string
   hotspotId: string
 
-  name: string
-  image: string
-  poeticLine: string
-
+  name: string // Activity name
   place: string
   region: string
+  country: string
+
+  image: string
+  poeticLine: string
   description: string
 
-  bestTime?: string
-  duration?: string
-  difficulty?: string
-  restrictions?: string
+  bestTime: string
+  duration: string
+  difficulty: string
+  restrictions?: string[]
 
-  source: string
   coordinates?: Coordinates
+  source: string
+  sourceUrl: string
 }

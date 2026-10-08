@@ -17,11 +17,11 @@ function HotspotMarker({
       onClick={() => onClick(hotspot)}
     >
       <span
-        className="hotspot-marker__dot"
+        className="hotspot-marker-dot"
         aria-hidden="true"
       />
 
-      <span className="hotspot-marker__label">
+      <span className="hotspot-marker-label">
         {hotspot.name}
       </span>
     </button>

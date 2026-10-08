@@ -1,124 +1,187 @@
-import { useCallback, useState } from "react"
-
+import { useCallback, useState, useMemo } from "react"
 import ACROSMap from "./components/Map/ACROSMap"
+import AtlasSearch from "./components/Search/AtlasSearch"
+import AtlasLoader from "./components/UI/AtlasLoader"
+import HotspotView from "./components/Views/HotspotView"
+import SpeciesView from "./components/Views/SpeciesView"
+import EcosystemsView from "./components/Views/EcosystemsView"
+import ExperiencesView from "./components/Views/ExperiencesView"
+
 import type { Hotspot } from "./types/biodiversity"
+import type { AtlasView } from "./app/AppState"
+import { species } from "./data/species"
+import { ecosystems } from "./data/ecosystems"
+import { experiences } from "./data/experiences"
 
-function App() {
-  const [selectedHotspot, setSelectedHotspot] =
-    useState<Hotspot | null>(null)
+export default function App() {
+  const [currentView, setCurrentView] = useState<AtlasView>("earth")
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null)
+  const [selectedSpeciesId, setSelectedSpeciesId] = useState<string | null>(null)
+  const [selectedExperienceId, setSelectedExperienceId] = useState<string | null>(null)
+  const [isMapReady, setIsMapReady] = useState(false)
 
-  const handleHotspotSelect = useCallback(
-    (hotspot: Hotspot) => {
-      setSelectedHotspot(hotspot)
-    },
-    [],
-  )
-
-  const handleBackToEarth = useCallback(() => {
-    setSelectedHotspot(null)
+  // Handle hotspot selection from globe marker or search
+  const handleHotspotSelect = useCallback((hotspot: Hotspot) => {
+    setSelectedHotspot(hotspot)
+    setCurrentView("hotspot")
+    setSelectedSpeciesId(null)
+    setSelectedExperienceId(null)
   }, [])
 
+  // Return to global Earth view
+  const handleBackToEarth = useCallback(() => {
+    setSelectedHotspot(null)
+    setCurrentView("earth")
+    setSelectedSpeciesId(null)
+    setSelectedExperienceId(null)
+  }, [])
+
+  // Return to current hotspot view
+  const handleBackToHotspot = useCallback(() => {
+    setCurrentView("hotspot")
+  }, [])
+
+  // Navigate deeper into species, ecosystems, or experiences via map annotations
+  const handleNavigate = useCallback((view: AtlasView) => {
+    setCurrentView(view)
+  }, [])
+
+  // Filtered relations based on selected hotspot ID
+  const hotspotSpecies = useMemo(() => {
+    if (!selectedHotspot) return []
+    return species.filter((s) => s.hotspotId === selectedHotspot.id)
+  }, [selectedHotspot])
+
+  const hotspotEcosystems = useMemo(() => {
+    if (!selectedHotspot) return []
+    return ecosystems.filter((e) => e.hotspotId === selectedHotspot.id)
+  }, [selectedHotspot])
+
+  const hotspotExperiences = useMemo(() => {
+    if (!selectedHotspot) return []
+    return experiences.filter((e) => e.hotspotId === selectedHotspot.id)
+  }, [selectedHotspot])
+
   return (
-    <main className="acros-app">
-      <div className="acros-app__map">
-        <ACROSMap onHotspotSelect={handleHotspotSelect} />
+    <main className={`acros-app acros-app-view-${currentView}`}>
+      {/* Editorial loader holding the screen until MapLibre globe is fully formed */}
+      <AtlasLoader isReady={isMapReady} />
+
+      {/* Persistent MapLibre GL JS Globe Map */}
+      <div className="acros-app-map">
+        <ACROSMap
+          selectedHotspot={selectedHotspot}
+          currentView={currentView}
+          onHotspotSelect={handleHotspotSelect}
+          onNavigate={handleNavigate}
+          onMapReady={() => setIsMapReady(true)}
+        />
       </div>
 
-      <header className="acros-header">
-        <button
-          className="acros-logo"
-          type="button"
-          aria-label="Return to ACROS Earth view"
-          onClick={handleBackToEarth}
-        >
-          ACROS
-        </button>
-
-        <button
-          className="acros-search"
-          type="button"
-          aria-label="Search hotspots"
-        >
-          <span
-            className="acros-search__icon"
-            aria-hidden="true"
+      {/* Top Header - In Earth or Hotspot view */}
+      {(currentView === "earth" || currentView === "hotspot") && (
+        <header className="acros-header">
+          <button
+            className="acros-logo"
+            type="button"
+            aria-label="Return to ACROS Earth view"
+            onClick={handleBackToEarth}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="10.8"
-                cy="10.8"
-                r="6.8"
-                stroke="currentColor"
-                strokeWidth="1.5"
+            ACROS
+          </button>
+
+          {selectedHotspot && currentView === "hotspot" && (
+            <div className="acros-header-search-group">
+              <AtlasSearch
+                placeholder="Explore other hotspots..."
+                onSelectHotspot={handleHotspotSelect}
+                className="atlas-search-header"
               />
+              <button
+                type="button"
+                className="acros-header-compass-btn"
+                onClick={handleBackToEarth}
+                title="Return to Earth view"
+                aria-label="Return to Earth view"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polygon
+                    points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
+                    fill="currentColor"
+                    fillOpacity="0.28"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
+        </header>
+      )}
 
-              <path
-                d="M16 16L21 21"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-
-          <span className="acros-search__label">
-            Search
-          </span>
-        </button>
-      </header>
-
-      {!selectedHotspot && (
-        <section
-          className="acros-intro"
-          aria-label="ACROS introduction"
-        >
-          <p className="acros-intro__eyebrow">
-            BIODIVERSITY ATLAS
-          </p>
-
-          <h1 className="acros-intro__title">
-            Explore the places
-            <br />
-            where life thrives.
+      {/* Level 1: Earth View (Center-aligned heading and search at bottom) */}
+      {!selectedHotspot && currentView === "earth" && (
+        <section className="acros-earth-hero" aria-label="ACROS introduction">
+          <h1 className="acros-earth-hero-title">
+            Explore the places where life thrives.
           </h1>
-
-          <p className="acros-intro__description">
-            Discover biodiversity hotspots, the species they
-            shelter, the landscapes they shape, and the
-            experiences within them.
-          </p>
+          <div className="acros-earth-hero-search">
+            <AtlasSearch
+              placeholder="Explore the beauty and experience the nature offers..."
+              onSelectHotspot={handleHotspotSelect}
+              className="atlas-search-earth"
+            />
+          </div>
         </section>
       )}
 
-      {selectedHotspot && (
-        <section
-          className="hotspot-preview"
-          aria-label={`${selectedHotspot.name} preview`}
-        >
-          <button
-            className="hotspot-back"
-            type="button"
-            onClick={handleBackToEarth}
-          >
-            <span aria-hidden="true">←</span>
-            Back to Earth
-          </button>
+      {/* Level 2: Hotspot View (Overlaid on regional map with spatial annotations) */}
+      {selectedHotspot && currentView === "hotspot" && (
+        <HotspotView
+          hotspot={selectedHotspot}
+          onBackToEarth={handleBackToEarth}
+        />
+      )}
 
-          <p className="hotspot-preview__eyebrow">
-            BIODIVERSITY HOTSPOT
-          </p>
+      {/* Level 3: Species Field Guide Presentation */}
+      {selectedHotspot && currentView === "species" && (
+        <SpeciesView
+          hotspot={selectedHotspot}
+          speciesList={hotspotSpecies}
+          selectedSpeciesId={selectedSpeciesId}
+          onBackToHotspot={handleBackToHotspot}
+          onSelectSpecies={setSelectedSpeciesId}
+        />
+      )}
 
-          <h1 className="hotspot-preview__title">
-            {selectedHotspot.name}
-          </h1>
-        </section>
+      {/* Level 3: Ecosystems Editorial Flow */}
+      {selectedHotspot && currentView === "ecosystems" && (
+        <EcosystemsView
+          hotspot={selectedHotspot}
+          ecosystemsList={hotspotEcosystems}
+          onBackToHotspot={handleBackToHotspot}
+        />
+      )}
+
+      {/* Level 3: Experiences Specific Place Narrative */}
+      {selectedHotspot && currentView === "experiences" && (
+        <ExperiencesView
+          hotspot={selectedHotspot}
+          experiencesList={hotspotExperiences}
+          selectedExperienceId={selectedExperienceId}
+          onBackToHotspot={handleBackToHotspot}
+          onSelectExperience={setSelectedExperienceId}
+        />
       )}
     </main>
   )
 }
-
-export default App

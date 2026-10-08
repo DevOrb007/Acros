@@ -1,15 +1,20 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..600;1,8..60,300..500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Sansation:wght@400;700&display=swap");
 
 :root {
-  --acros-cream: #f5f1e8;
+  --acros-cream: #f6f3eb;
   --acros-charcoal: #24251f;
-  --acros-olive: #b5db77;
-  --acros-dark-olive: #3e4a2d;
-  --acros-purple: #aa7eb5;
-  --acros-divider: #d9d3c4;
+  --acros-charcoal-muted: rgba(36, 37, 31, 0.72);
+  --acros-charcoal-faint: rgba(36, 37, 31, 0.45);
+  --acros-olive: #788a53;
+  --acros-dark-olive: #485433;
+  --acros-purple: #966b9f;
+  --acros-purple-muted: rgba(150, 107, 159, 0.65);
+  --acros-border: rgba(36, 37, 31, 0.12);
+  --acros-img-bg: #ded7cb;
+  --acros-img-text: #8e877a;
 
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--acros-charcoal);
   background: var(--acros-cream);
   font-synthesis: none;
@@ -24,26 +29,36 @@ html,
 body,
 #root {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 body {
   min-width: 320px;
-  min-height: 100vh;
-  overflow: hidden;
   background: var(--acros-cream);
 }
 
 button,
 input {
   font: inherit;
-}
-
-button {
   color: inherit;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* App Main Canvas */
 .acros-app {
   position: relative;
   width: 100vw;
@@ -52,12 +67,20 @@ button {
   background: var(--acros-cream);
 }
 
-.acros-app__map {
+/* MapLibre 3D Globe & Map Container */
+.acros-app-map {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  z-index: 1;
+}
+
+.acros-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .acros-map {
@@ -72,314 +95,1428 @@ button {
   background: transparent !important;
 }
 
-.acros-map .maplibregl-canvas-container {
-  position: absolute;
-  top: 50%;
-  left: 56%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-}
-
-
-/* Header */
-
+/* Top Header */
 .acros-header {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
-
+  z-index: 25;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: 100%;
-  padding: 28px 36px;
+  padding: 28px 48px;
+  pointer-events: none;
+}
+
+.acros-header > * {
+  pointer-events: auto;
 }
 
 .acros-logo {
-  display: block;
-
+  display: inline-block;
   margin: 0;
   padding: 0;
-
   border: 0;
   background: transparent;
-
   color: var(--acros-olive);
-
-  font-family: "Sansation", Arial, Helvetica, sans-serif;
-  font-size: 21px;
+  font-family: "Sansation", -apple-system, sans-serif;
+  font-size: 23px;
   font-weight: 700;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.04em;
   line-height: 1;
-
   cursor: pointer;
-
-  transition: opacity 180ms ease;
+  transition: opacity 160ms ease;
 }
 
 .acros-logo:hover {
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
 .acros-logo:focus-visible {
   outline: 2px solid var(--acros-olive);
-  outline-offset: 5px;
+  outline-offset: 4px;
 }
 
-.acros-search {
+/* Earth View - Center-aligned Hero at the bottom of the page */
+.acros-earth-hero {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: min(840px, 94vw);
+  pointer-events: none;
+}
+
+.acros-earth-hero-title {
+  margin: 0 0 20px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(26px, 3.2vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--acros-charcoal);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.acros-earth-hero-search {
+  width: 100%;
+  max-width: 500px;
+  pointer-events: auto;
+}
+
+/* Atlas Search Input */
+.atlas-search {
+  position: relative;
+}
+
+.atlas-search-earth {
+  width: 100%;
+}
+
+.atlas-search-header {
+  width: 270px;
+}
+
+.acros-header-search-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
 
-  min-width: 148px;
-  height: 38px;
-  padding: 0 13px;
-
-  border: 1px solid rgba(36, 37, 31, 0.16);
-  border-radius: 20px;
-
-  background: rgba(245, 241, 232, 0.72);
-
+.acros-header-compass-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--acros-border);
+  border-radius: 50%;
+  background: rgba(246, 243, 235, 0.92);
+  backdrop-filter: blur(8px);
+  color: var(--acros-charcoal);
   cursor: pointer;
-
-  font-size: 12px;
-  letter-spacing: 0.01em;
-
-  transition:
-    border-color 180ms ease,
-    background-color 180ms ease,
-    transform 180ms ease;
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(36, 37, 31, 0.05);
 }
 
-.acros-search:hover {
-  border-color: rgba(36, 37, 31, 0.3);
-  background: rgba(245, 241, 232, 0.9);
-  transform: translateY(-1px);
+.acros-header-compass-btn:hover {
+  background: var(--acros-cream);
+  border-color: var(--acros-purple);
+  color: var(--acros-purple);
+  transform: rotate(35deg);
+  box-shadow: 0 4px 14px rgba(150, 107, 159, 0.18);
 }
 
-.acros-search:focus-visible {
-  outline: 2px solid var(--acros-olive);
+.acros-header-compass-btn:focus-visible {
+  outline: 2px solid var(--acros-purple);
   outline-offset: 3px;
 }
 
-.acros-search__icon {
+.atlas-search-input-wrapper {
+  position: relative;
   display: flex;
-  width: 16px;
-  height: 16px;
+  align-items: center;
 }
 
-.acros-search__icon svg {
+.atlas-search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 42px 0 16px;
+  border: 1px solid var(--acros-border);
+  border-radius: 22px;
+  background: rgba(246, 243, 235, 0.88);
+  color: var(--acros-charcoal);
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.atlas-search-input:focus {
+  outline: none;
+  border-color: var(--acros-purple);
+  background: var(--acros-cream);
+}
+
+.atlas-search-input::placeholder {
+  color: var(--acros-charcoal-faint);
+}
+
+.atlas-search-icon {
+  position: absolute;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--acros-charcoal-muted);
+  pointer-events: none;
+}
+
+.atlas-search-icon svg {
   width: 100%;
   height: 100%;
 }
 
-.acros-search__label {
-  color: rgba(36, 37, 31, 0.72);
-}
-
-/* Introduction */
-
-.acros-intro {
+.atlas-search-results {
   position: absolute;
-  left: 36px;
-  bottom: 48px;
-  z-index: 10;
-  width: min(500px, 38vw);
-  pointer-events: none;
-}
-
-.acros-intro__eyebrow {
-  margin: 0 0 16px;
-
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-}
-
-.acros-intro__title {
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  bottom: auto;
+  max-height: 260px;
   margin: 0;
-
-  font-size: clamp(42px, 5vw, 72px);
-  font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: -0.045em;
+  padding: 6px 0;
+  list-style: none;
+  background: var(--acros-cream);
+  border: 1px solid var(--acros-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(36, 37, 31, 0.08);
+  overflow-y: auto;
+  z-index: 35;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 107, 159, 0.3) transparent;
 }
 
-.acros-intro__description {
-  max-width: 390px;
-  margin: 22px 0 0;
-
-  color: rgba(36, 37, 31, 0.7);
-  font-size: 14px;
-  line-height: 1.6;
+.atlas-search-earth .atlas-search-results {
+  top: auto;
+  bottom: calc(100% + 8px);
 }
 
-/* Mobile */
-
-@media (max-width: 640px) {
-  .acros-app__map::before {
-    top: 38%;
-    left: 50%;
-
-    width: 125vw;
-  }
-
-  .acros-intro {
-    left: 20px;
-    bottom: 28px;
-    width: calc(100vw - 40px);
-  }
-
-  .acros-intro__title {
-    font-size: clamp(40px, 12vw, 58px);
-  }
-
-  .acros-intro__description {
-    max-width: 330px;
-    font-size: 13px;
-  }
-
-  .hotspot-preview {
-    left: 20px;
-    bottom: 28px;
-    max-width: calc(100vw - 40px);
-  }
-
-  .hotspot-marker__label {
-    display: none;
-  }
+.atlas-search-header .atlas-search-results {
+  top: calc(100% + 8px);
+  bottom: auto;
 }
 
-/* Reduced motion */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
+.atlas-search-results::-webkit-scrollbar {
+  width: 4px;
 }
 
-/* Hotspot markers */
+.atlas-search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
 
+.atlas-search-results::-webkit-scrollbar-thumb {
+  background: rgba(150, 107, 159, 0.25);
+  border-radius: 4px;
+}
+
+.atlas-search-results::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 107, 159, 0.55);
+}
+
+.atlas-search-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.atlas-search-item-active,
+.atlas-search-item:hover {
+  background: rgba(150, 107, 159, 0.08);
+}
+
+.atlas-search-item-title {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 15px;
+  color: var(--acros-charcoal);
+}
+
+.atlas-search-item-meta {
+  font-size: 11px;
+  color: var(--acros-charcoal-faint);
+  margin-top: 2px;
+}
+
+.atlas-search-no-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--acros-charcoal-muted);
+  background: var(--acros-cream);
+  border: 1px solid var(--acros-border);
+  border-radius: 12px;
+  z-index: 35;
+}
+
+/* Global Globe Hotspot Markers */
 .hotspot-marker {
   display: flex;
   align-items: center;
-  gap: 7px;
-
+  gap: 8px;
   padding: 0;
-
   border: 0;
   background: transparent;
-
   color: var(--acros-purple);
-
   cursor: pointer;
   white-space: nowrap;
-
-  transform: translateZ(0);
-
-  transition:
-    transform 180ms ease,
-    opacity 180ms ease;
+  transition: transform 180ms ease, opacity 220ms ease;
 }
 
 .hotspot-marker:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .hotspot-marker:focus-visible {
   outline: 2px solid var(--acros-purple);
-  outline-offset: 5px;
-  border-radius: 3px;
+  outline-offset: 4px;
 }
 
-.hotspot-marker__dot {
+.hotspot-marker-dot {
   display: block;
-
   width: 9px;
   height: 9px;
-
   border: 1.5px solid var(--acros-purple);
   border-radius: 50%;
-
   background: var(--acros-cream);
-
-  box-shadow:
-    0 0 0 3px rgba(170, 126, 181, 0.14);
+  box-shadow: 0 0 0 3px rgba(150, 107, 159, 0.16);
 }
 
-.hotspot-marker__label {
-  font-size: 10px;
+.hotspot-marker-label {
+  font-family: -apple-system, sans-serif;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.015em;
+  color: var(--acros-charcoal);
 }
 
-/* Hotspot preview */
-
-.hotspot-preview {
-  position: absolute;
-  left: 36px;
-  bottom: 48px;
-  z-index: 10;
-
-  max-width: 620px;
-}
-
-.hotspot-back {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  margin: 0 0 30px;
+/* ==========================================================================
+   FLOATING TEXT ANNOTATIONS (Pure Floating Text - No Dots, No Lines, No Boxes)
+   ========================================================================== */
+.floating-annotation {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 0;
-
   border: 0;
   background: transparent;
-
-  color: rgba(36, 37, 31, 0.65);
-
+  color: var(--acros-purple);
   cursor: pointer;
-
-  font-size: 12px;
-
-  transition:
-    color 180ms ease,
-    transform 180ms ease;
+  white-space: nowrap;
+  user-select: none;
+  transition: transform 160ms ease, opacity 160ms ease;
 }
 
-.hotspot-back:hover {
+.floating-annotation:hover {
+  transform: scale(1.06);
+}
+
+.floating-annotation:focus-visible {
+  outline: 2px solid var(--acros-purple);
+  outline-offset: 4px;
+}
+
+.floating-annotation-icon {
+  display: flex;
+  align-items: center;
+  color: var(--acros-purple);
+  margin-bottom: 2px;
+}
+
+.floating-annotation-value {
+  font-family: -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--acros-purple);
+  letter-spacing: -0.01em;
+}
+
+.floating-annotation-label {
+  font-family: -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
   color: var(--acros-charcoal);
-  transform: translateX(-2px);
+  letter-spacing: 0.015em;
+  margin-top: 2px;
 }
 
-.hotspot-back:focus-visible {
+/* ==========================================================================
+   HOTSPOT VIEW (Floating Editorial Text over 3D Geography - NO BOXES)
+   ========================================================================== */
+.hotspot-intro-panel {
+  position: absolute;
+  left: 52px;
+  bottom: 44px;
+  z-index: 10;
+  max-width: 520px;
+  pointer-events: none;
+}
+
+.hotspot-intro-panel > * {
+  pointer-events: auto;
+}
+
+.hotspot-intro-title {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(38px, 4.5vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--acros-charcoal);
+}
+
+.hotspot-intro-poetic {
+  margin: 12px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--acros-dark-olive);
+}
+
+.hotspot-intro-desc {
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--acros-charcoal);
+}
+
+.hotspot-intro-source {
+  margin: 18px 0 0;
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+}
+
+.hotspot-intro-source-link {
+  color: var(--acros-charcoal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   EDITORIAL IMAGE COMPONENT (Compact, restrained frames matching PDF)
+   ========================================================================== */
+.editorial-img-figure {
+  margin: 0;
+  padding: 0;
+}
+
+.editorial-img-box {
+  position: relative;
+  width: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--acros-img-bg);
+}
+
+.editorial-img-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.editorial-img-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--acros-img-bg);
+  color: var(--acros-img-text);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+}
+
+.editorial-img-caption {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   DETAIL PAGES (Species, Ecosystems, Experiences) - Clean Screen Coverage
+   ========================================================================== */
+.species-page,
+.ecosystems-page,
+.experiences-page {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 56px 52px;
+  background: rgba(246, 243, 235, 0.96);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+}
+
+.atlas-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto 20px;
+}
+
+.acros-view-logo {
+  font-family: "Sansation", -apple-system, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--acros-olive);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+
+.acros-view-logo:hover {
+  opacity: 0.72;
+}
+
+.acros-view-logo:focus-visible {
   outline: 2px solid var(--acros-olive);
   outline-offset: 4px;
 }
 
-.hotspot-preview__eyebrow {
-  margin: 0 0 14px;
-
-  color: var(--acros-purple);
-
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+.atlas-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--acros-charcoal-muted);
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: color 150ms ease, transform 150ms ease;
 }
 
-.hotspot-preview__title {
-  margin: 0;
+.atlas-back-link:hover {
+  color: var(--acros-charcoal);
+  transform: translateX(2px);
+}
 
-  font-family: "Sansation", Arial, Helvetica, sans-serif;
-  font-size: clamp(42px, 5vw, 68px);
+.atlas-back-link:focus-visible {
+  outline: 2px solid var(--acros-olive);
+  outline-offset: 4px;
+}
+
+/* Editorial Page Intro Header across detail pages */
+.ecosystems-page-intro,
+.species-page-intro,
+.experiences-page-intro {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--acros-border);
+}
+
+.editorial-kicker {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acros-purple);
+  margin-bottom: 8px;
+}
+
+.ecosystems-page-title,
+.species-page-title,
+.experiences-page-title {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(30px, 3.4vw, 38px);
   font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--acros-charcoal);
+}
+
+.ecosystems-page-subtitle,
+.species-page-subtitle,
+.experiences-page-subtitle {
+  margin: 8px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--acros-dark-olive);
+}
+
+.editorial-empty-text {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--acros-charcoal-muted);
+}
+
+.editorial-source-citation {
+  margin-top: 28px;
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+}
+
+.editorial-source-link {
+  color: var(--acros-charcoal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   SPECIES FIELD GUIDE (PDF Page 5 - Left Profile, Right Directory)
+   Readable Typography, Compact Framed Image, No Small Fonts
+   ========================================================================== */
+.species-composition {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
+  gap: 72px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.species-profile {
+  display: flex;
+  flex-direction: column;
+}
+
+.species-identity {
+  margin-bottom: 14px;
+}
+
+.species-identity-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.species-identity-tag {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--acros-purple);
+}
+
+.species-identity-bullet {
+  color: var(--acros-charcoal-faint);
+  font-size: 14px;
+}
+
+.species-identity-taxa {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--acros-charcoal-muted);
+}
+
+.species-common-name {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(34px, 4vw, 46px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--acros-charcoal);
+}
+
+.species-scientific-name {
+  margin: 6px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--acros-charcoal-muted);
+}
+
+/* Compact, restrained editorial image frame (not giant) */
+.species-editorial-image {
+  max-width: 280px;
+  width: 100%;
+  margin: 16px 0 18px;
+}
+
+.species-poetic-line {
+  margin: 0 0 20px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: var(--acros-dark-olive);
+}
+
+/* Unboxed metadata columns */
+.species-meta-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin: 8px 0 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--acros-border);
+  border-bottom: 1px solid var(--acros-border);
+}
+
+.species-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.species-meta-val {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 17.5px;
+  font-weight: 600;
+  color: var(--acros-charcoal);
+}
+
+.species-meta-val-status {
+  color: var(--acros-purple);
+}
+
+.species-meta-lbl {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--acros-charcoal-muted);
+}
+
+.species-description-text {
+  margin: 0 0 28px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--acros-charcoal);
+  max-width: 66ch;
+}
+
+.species-facts-block {
+  margin: 8px 0 20px;
+}
+
+.species-facts-title {
+  margin: 0 0 12px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--acros-charcoal);
+}
+
+.species-facts-items {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--acros-charcoal);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.species-fact-entry {
+  margin-bottom: 8px;
+}
+
+/* Species Companion Directory (Right Column) */
+.species-directory {
+  padding-top: 6px;
+}
+
+.species-directory-header {
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--acros-border);
+}
+
+.species-directory-heading {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--acros-charcoal);
+}
+
+.species-directory-subheading {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--acros-charcoal-muted);
+  font-style: italic;
+}
+
+.species-directory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.species-directory-item {
+  width: 100%;
+}
+
+.species-directory-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.species-directory-card:hover {
+  background: rgba(235, 230, 219, 0.6);
+  border-color: rgba(200, 192, 178, 0.5);
+}
+
+.species-directory-card:focus-visible {
+  outline: 2px solid var(--acros-olive);
+  outline-offset: 2px;
+}
+
+.species-directory-card-num {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--acros-purple);
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.species-directory-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.species-directory-card-name {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--acros-charcoal);
+}
+
+.species-directory-card-sci {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--acros-charcoal-muted);
+}
+
+.species-directory-card-poetic {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--acros-dark-olive);
+  margin-top: 3px;
+}
+
+/* ==========================================================================
+   ECOSYSTEMS 3-COLUMN FLOW (PDF Page 6 Top - Full Width Coverage)
+   Compact Landscape Images, Readable Font Sizes
+   ========================================================================== */
+.ecosystems-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 52px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.ecosystem-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.ecosystem-column-header {
+  margin-bottom: 14px;
+}
+
+.ecosystem-column-index {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acros-purple);
+  margin-bottom: 6px;
+}
+
+.ecosystem-title {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--acros-charcoal);
+}
+
+.ecosystem-poetic {
+  margin: 6px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--acros-dark-olive);
+}
+
+/* Compact, restrained landscape image frame (not giant) */
+.ecosystem-editorial-image {
+  width: 100%;
+  max-width: 250px;
+  margin: 14px 0 18px;
+}
+
+.ecosystem-metrics-block {
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--acros-border);
+  border-bottom: 1px solid var(--acros-border);
+}
+
+.ecosystem-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.ecosystem-metric-val {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--acros-charcoal);
+}
+
+.ecosystem-metric-lbl {
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+}
+
+.ecosystem-season-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ecosystem-season-val {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--acros-charcoal);
+}
+
+.ecosystem-season-lbl {
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+}
+
+.ecosystem-description {
+  margin: 0 0 20px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--acros-charcoal);
+}
+
+.ecosystem-facts-block {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--acros-border);
+}
+
+.ecosystem-facts-title {
+  margin: 0 0 10px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--acros-charcoal);
+}
+
+.ecosystem-facts-items {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--acros-charcoal);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.ecosystem-fact-entry {
+  margin-bottom: 6px;
+}
+
+/* ==========================================================================
+   EXPERIENCES EDITORIAL SPREAD (PDF Page 6 Bottom & Page 3)
+   No Radio Buttons, Compact Images, Readable Typography
+   ========================================================================== */
+.experiences-composition {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 72px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.experiences-catalog {
+  padding-top: 6px;
+}
+
+.experiences-catalog-header {
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--acros-border);
+}
+
+.experiences-catalog-title {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--acros-charcoal);
+}
+
+.experiences-catalog-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--acros-charcoal-muted);
+  font-style: italic;
+}
+
+.experiences-catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.experiences-catalog-item {
+  width: 100%;
+}
+
+.experience-nav-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.experience-nav-btn:hover {
+  background: rgba(235, 230, 219, 0.6);
+  border-color: rgba(200, 192, 178, 0.5);
+}
+
+.experience-nav-btn-active {
+  background: rgba(240, 235, 225, 0.95);
+  border-color: var(--acros-purple);
+}
+
+.experience-nav-btn:focus-visible {
+  outline: 2px solid var(--acros-olive);
+  outline-offset: 2px;
+}
+
+.experience-nav-btn-num {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--acros-purple);
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.experience-nav-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.experience-nav-btn-title {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--acros-charcoal);
+  line-height: 1.3;
+}
+
+.experience-nav-btn-active .experience-nav-btn-title {
+  font-weight: 600;
+}
+
+.experience-nav-btn-place {
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+  font-style: italic;
+}
+
+/* Experience Feature Detail (Right Column) */
+.experience-feature {
+  display: flex;
+  flex-direction: column;
+}
+
+.experience-feature-header {
+  margin-bottom: 24px;
+}
+
+.experience-feature-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.experience-feature-tag {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--acros-purple);
+}
+
+.experience-feature-bullet {
+  color: var(--acros-charcoal-faint);
+  font-size: 14px;
+}
+
+.experience-feature-geo {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--acros-charcoal-muted);
+}
+
+.experience-feature-title {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(32px, 3.8vw, 44px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--acros-charcoal);
+}
+
+.experience-feature-poetic {
+  margin: 8px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 16.5px;
+  color: var(--acros-dark-olive);
+}
+
+.experience-feature-desc {
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--acros-charcoal);
+  max-width: 68ch;
+}
+
+/* Asymmetric Body: Logistics on left, Photo + Metrics on right */
+.experience-feature-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 1fr);
+  gap: 48px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--acros-border);
+}
+
+.experience-feature-logistics {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.experience-logistics-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.experience-logistics-lbl {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--acros-charcoal-muted);
+}
+
+.experience-logistics-val {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 16px;
+  color: var(--acros-charcoal);
+}
+
+.experience-restrictions-section {
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--acros-border);
+}
+
+.experience-restrictions-heading {
+  margin: 0 0 10px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 16.5px;
+  font-weight: 500;
+  color: var(--acros-charcoal);
+}
+
+.experience-restrictions-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--acros-charcoal);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.experience-restriction-point {
+  margin-bottom: 6px;
+}
+
+.experience-feature-visual-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Compact, restrained image frame (not giant) */
+.experience-editorial-photo {
+  width: 100%;
+  max-width: 250px;
+  margin-bottom: 14px;
+}
+
+.experience-unboxed-metrics {
+  display: flex;
+  gap: 32px;
+  margin-top: 6px;
+}
+
+.experience-unboxed-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.experience-unboxed-metric-val {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--acros-charcoal);
+}
+
+.experience-unboxed-metric-lbl {
+  font-size: 13.5px;
+  color: var(--acros-charcoal-muted);
+}
+
+/* ==========================================================================
+   ATLAS LOADER SCREEN (Smooth Initial State - No Intermediate Raw Flash)
+   ========================================================================== */
+.atlas-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--acros-cream);
+  opacity: 1;
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.atlas-loader-overlay-fade {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.atlas-loader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  user-select: none;
+}
+
+.atlas-loader-aura {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.atlas-loader-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(120, 138, 83, 0.3);
+}
+
+.atlas-loader-ring-outer {
+  inset: 0;
+  border-style: dashed;
+  animation: loaderRotate 14s linear infinite;
+}
+
+.atlas-loader-ring-inner {
+  inset: 14px;
+  border-color: rgba(150, 107, 159, 0.4);
+  animation: loaderRotateReverse 9s linear infinite;
+}
+
+.atlas-loader-globe-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #966B9F, #5F4266);
+  box-shadow: 0 0 20px 4px rgba(150, 107, 159, 0.35);
+  animation: globePulse 2.4s ease-in-out infinite;
+}
+
+@keyframes loaderRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loaderRotateReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes globePulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.atlas-loader-title {
+  margin: 0;
+  font-family: "Sansation", -apple-system, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--acros-olive);
+}
+
+.atlas-loader-subtitle {
+  margin: 6px 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--acros-charcoal-muted);
+}
+
+.atlas-loader-status {
+  margin: 18px 0 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--acros-charcoal-faint);
+}
+
+/* ==========================================================================
+   GLOBE ATMOSPHERIC AURA & VIEWPORT VIGNETTE (Natural Soft Radiance)
+   ========================================================================== */
+.acros-globe-aura {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle at 75% 50%, rgba(200, 222, 230, 0.35) 0%, rgba(190, 215, 224, 0.15) 45%, rgba(246, 243, 235, 0) 72%);
+}
+
+.acros-viewport-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(246, 243, 235, 0.55) 100%);
+}
+
+/* ==========================================================================
+   RESPONSIVE ADAPTATION (Mobile without cramped cards)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .acros-header {
+    padding: 20px 24px;
+  }
+
+  .acros-earth-hero {
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 48px);
+  }
+
+  .acros-earth-hero-title {
+    font-size: clamp(20px, 4.8vw, 28px);
+    white-space: nowrap;
+    margin-bottom: 18px;
+  }
+
+  .hotspot-intro-panel {
+    left: 24px;
+    bottom: 28px;
+    max-width: calc(100vw - 48px);
+  }
+
+  .species-page,
+  .ecosystems-page,
+  .experiences-page {
+    padding: 24px 24px 36px;
+  }
+
+  .species-composition,
+  .experiences-composition {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .experience-feature-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .species-directory {
+    padding-top: 24px;
+    border-top: 1px solid var(--acros-border);
+  }
+
+  .experiences-catalog {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--acros-border);
+  }
+
+  .ecosystems-flow {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .ecosystem-column {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--acros-border);
+  }
 }
